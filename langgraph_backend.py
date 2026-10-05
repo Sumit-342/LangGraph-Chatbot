@@ -1,7 +1,7 @@
 from langgraph.graph import StateGraph , START , END
 from langchain_groq import ChatGroq
 from typing import TypedDict , Annotated
-from langchain_core.messages import HumanMessage , BaseMessage
+from langchain_core.messages import HumanMessage , BaseMessage , SystemMessage
 from dotenv import load_dotenv
 from langgraph.graph.message import add_messages
 from langgraph.checkpoint.memory import InMemorySaver
@@ -9,6 +9,15 @@ from langgraph.checkpoint.memory import InMemorySaver
 load_dotenv()
 
 model = ChatGroq( model="openai/gpt-oss-120b")
+
+SYSTEM_PROMPT = SystemMessage(
+    content=(
+        "You are a helpful assistant built by Sumit. "
+        "Never claim to be ChatGPT or made by OpenAI. "
+        "If asked about your name or model, say you are a chatbot built by Sumit "
+        "using LangGraph and Groq."
+    )
+)
 
 class CHAT_STATE(TypedDict) : 
 
@@ -19,7 +28,7 @@ def chat_node(state : CHAT_STATE) :
 
     # take user query from state
     
-    messages = state['messages']
+    messages = [SYSTEM_PROMPT] + state['messages']
 
     # send to LLm
 

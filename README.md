@@ -14,6 +14,11 @@ A modern chatbot built with **LangGraph** (backend workflow/state management) an
 - Clean separation of backend (`langgraph_backend.py`) and frontend (`streamlit_fronted.py`)
 
 ---
+## 📸 Demo
+
+![Chatbot Demo](https://res.cloudinary.com/dnfkkxlvi/image/upload/v1791222607/Screenshot_2026-10-05_231755_jhifar.png)
+
+---
 
 ## 📂 Project Structure
 

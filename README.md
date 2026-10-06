@@ -12,6 +12,7 @@ A modern chatbot built with **LangGraph** (backend workflow/state management) an
 - Frontend built in Streamlit for instant deployment
 - Uses **Groq API key** for model inference
 - Clean separation of backend (`langgraph_backend.py`) and frontend (`streamlit_fronted.py`)
+- Streaming responses (token-by-token typing effect)
 
 ---
 ## 📸 Demo

@@ -20,7 +20,7 @@ A modern chatbot built with **LangGraph** (backend workflow/state management) an
 ---
 ## 📸 Demo
 
-![Chatbot Demo](https://res.cloudinary.com/dnfkkxlvi/image/upload/v1791222607/Screenshot_2026-10-05_231755_jhifar.png)
+![Chatbot Demo](https://res.cloudinary.com/dnfkkxlvi/image/upload/v1791482035/Screenshot_2026-10-08_232008_qy16wm.png)
 
 ---
 

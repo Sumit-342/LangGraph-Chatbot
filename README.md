@@ -15,6 +15,7 @@ A modern chatbot built with **LangGraph** (backend workflow/state management) an
 - Streaming responses (token-by-token typing effect)
 - Streaming responses (token-by-token typing effect)
 - Multi-chat sidebar with conversation history
+- Persistent chat history using SQLite
 
 ---
 ## 📸 Demo

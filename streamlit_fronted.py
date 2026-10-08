@@ -3,7 +3,7 @@ from langgraph_backend import chatbot , retrive_all_threads
 from langchain_core.messages import HumanMessage
 import uuid
 
-
+st.set_page_config(page_title='LangGraph Chatbot', page_icon='🤖')
 
 # ************************** Utility Functions **************************************************************
 
@@ -25,6 +25,12 @@ def add_thread(thread_id) :
 def load_conversation(thread_id):
     return chatbot.get_state(config={'configurable':{'thread_id': thread_id}}).values.get('messages',[])
 
+def get_title(thread_id):
+    for msg in load_conversation(thread_id):
+        if isinstance(msg, HumanMessage):
+            return msg.content[:30]
+    return 'New Chat'
+
 # st.session_state -> dict ->  no data loss
 
 # ******************************** Session SetUp***********************************************************
@@ -45,17 +51,21 @@ add_thread(st.session_state['thread_id'])
 
 # ******************************** SideBar UI **************************************************************
 
-st.sidebar.title('LangGraph Chatbot')
+st.sidebar.title('👾 LangGraph Chatbot')
 
-if st.sidebar.button('New Chat') : 
+if st.sidebar.button('➕ New Chat', use_container_width=True, type='primary') : 
     reset_chat()
 
-st.sidebar.header('Recents')
+st.sidebar.divider()
+st.sidebar.caption('RECENT CHATS')
 
-for thread_id in st.session_state['chat_threads'] : 
-    if st.sidebar.button(thread_id) : 
+for thread_id in reversed(st.session_state['chat_threads']) : 
+    title = get_title(thread_id)
+    if title == 'New Chat' :
+        continue
+    if st.sidebar.button(title, key=f'thread-{thread_id}', use_container_width=True) : 
         st.session_state['thread_id'] = thread_id
-        messages = load_conversation(thread_id)
+        messages = load_conversation(thread_id) 
 
         temp_messages = []
 
@@ -72,14 +82,18 @@ for thread_id in st.session_state['chat_threads'] :
 
 # ************************************** Main UI *************************************************************
 
+CONFIG = {'configurable':{'thread_id':st.session_state['thread_id']}}
+user_input = st.chat_input('Ask me anything...')
+
+if not st.session_state['message_history'] and not user_input :
+    st.markdown('### 👋 Hi! What would you like to talk about?')
+    st.caption('Powered by LangGraph + Groq')
+
 # loading conversation History
 for message in st.session_state['message_history'] :
     with st.chat_message(message['role']):
         st.markdown(message['content'])
 
-
-CONFIG = {'configurable':{'thread_id':st.session_state['thread_id']}}
-user_input = st.chat_input('Type here')
 
 if user_input :
 
@@ -102,4 +116,3 @@ if user_input :
         )
 
     st.session_state['message_history'].append({'role':'assistant','content':ai_message})
-

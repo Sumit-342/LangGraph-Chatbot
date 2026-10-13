@@ -4,3 +4,4 @@ dotenv
 langchain-groq 
 streamlit
 langgraph-checkpoint-sqlite
+langsmith

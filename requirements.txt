@@ -5,3 +5,6 @@ langchain-groq
 streamlit
 langgraph-checkpoint-sqlite
 langsmith
+tavily
+langchain-community
+langchain-tavily

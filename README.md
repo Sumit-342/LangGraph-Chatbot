@@ -16,6 +16,8 @@ A modern chatbot built with **LangGraph** (backend workflow/state management) an
 - Streaming responses (token-by-token typing effect)
 - Multi-chat sidebar with conversation history
 - Persistent chat history using SQLite
+- Tool calling: web search (Tavily with DuckDuckGo fallback) and live stock prices
+- Live status indicator while tools run
 - LangSmith tracing for observability
 
 ---

@@ -1,6 +1,6 @@
 import streamlit as st
 from langgraph_backend import chatbot , retrive_all_threads
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import HumanMessage , AIMessage , ToolMessage
 import uuid
 
 st.set_page_config(page_title='LangGraph Chatbot', page_icon='🤖')
@@ -73,8 +73,11 @@ for thread_id in reversed(st.session_state['chat_threads']) :
             if isinstance(msg,HumanMessage): 
                 role = 'user'
 
-            else :
+            elif isinstance(msg,AIMessage) and msg.content :
                 role = 'assistant'
+
+            else :
+                continue
             temp_messages.append({'role' : role , 'content' : msg.content})
 
         st.session_state['message_history'] = temp_messages
@@ -112,12 +115,34 @@ if user_input :
 
     with st.chat_message('assistant'):
 
-        ai_message = st.write_stream(
-            message_chunk.content for message_chunk , metadata in chatbot.stream(
+        status_holder = {'box': None}
+
+        def ai_only_stream() :
+            for message_chunk , metadata in chatbot.stream(
                 {'messages':[HumanMessage(content=user_input)]},
                 config=CONFIG,
                 stream_mode='messages'
-            )
-        )
+            ) :
+
+                # model ne tool call kiya -> status box dikha
+                for tc in getattr(message_chunk, 'tool_call_chunks', None) or [] :
+                    if tc.get('name') :
+                        label = f"🔧 Using `{tc['name']}` ..."
+                        if status_holder['box'] is None :
+                            status_holder['box'] = st.status(label, expanded=True)
+                        else :
+                            status_holder['box'].update(label=label, state='running', expanded=True)
+
+                # tool ka result aa gaya -> status complete
+                if isinstance(message_chunk, ToolMessage) and status_holder['box'] is not None :
+                    status_holder['box'].update(
+                        label=f"✅ Used `{message_chunk.name}`", state='complete', expanded=False
+                    )
+
+                # sirf AI ka asli text stream karo
+                if isinstance(message_chunk, AIMessage) and message_chunk.content :
+                    yield message_chunk.content
+
+        ai_message = st.write_stream(ai_only_stream())
 
     st.session_state['message_history'].append({'role':'assistant','content':ai_message})

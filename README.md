@@ -47,7 +47,7 @@ Chatbot/
 Clone the repo and install dependencies:
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/Sumit-342/LangGraph-Chatbot
 cd Chatbot
 pip install -r requirements.txt
 ```

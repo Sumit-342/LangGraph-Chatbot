@@ -124,7 +124,7 @@ if user_input :
                 stream_mode='messages'
             ) :
 
-                # model ne tool call kiya -> status box dikha
+                # model  tool call  -> show status box 
                 for tc in getattr(message_chunk, 'tool_call_chunks', None) or [] :
                     if tc.get('name') :
                         label = f"🔧 Using `{tc['name']}` ..."
@@ -133,13 +133,13 @@ if user_input :
                         else :
                             status_holder['box'].update(label=label, state='running', expanded=True)
 
-                # tool ka result aa gaya -> status complete
+                # tool result -> status complete
                 if isinstance(message_chunk, ToolMessage) and status_holder['box'] is not None :
                     status_holder['box'].update(
                         label=f"✅ Used `{message_chunk.name}`", state='complete', expanded=False
                     )
 
-                # sirf AI ka asli text stream karo
+                # streaming AI message only
                 if isinstance(message_chunk, AIMessage) and message_chunk.content :
                     yield message_chunk.content
 

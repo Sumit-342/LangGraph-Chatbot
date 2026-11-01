@@ -8,3 +8,8 @@ langsmith
 tavily
 langchain-community
 langchain-tavily
+langchain-mcp-adapters
+fastmcp
+langchain
+pypdf
+faiss-cpu

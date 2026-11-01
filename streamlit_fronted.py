@@ -1,5 +1,5 @@
 import streamlit as st
-from langgraph_backend import chatbot , retrive_all_threads
+from langgraph_backend import chatbot , retrive_all_threads , ingest_pdf , thread_document_metadata   # NEW (added ingest_pdf, thread_document_metadata)
 from langchain_core.messages import HumanMessage , AIMessage , ToolMessage
 import uuid
 
@@ -46,7 +46,13 @@ if 'chat_threads' not in st.session_state:
 
     st.session_state['chat_threads'] = retrive_all_threads()
 
+if 'ingested_docs' not in st.session_state :                                  
+    st.session_state['ingested_docs'] = {}                                    
+
 add_thread(st.session_state['thread_id'])
+
+thread_key = str(st.session_state['thread_id'])                               
+thread_docs = st.session_state['ingested_docs'].setdefault(thread_key, {})    
 
 
 # ******************************** SideBar UI **************************************************************
@@ -55,6 +61,33 @@ st.sidebar.title('👾 LangGraph Chatbot')
 
 if st.sidebar.button('➕ New Chat', use_container_width=True, type='primary') : 
     reset_chat()
+
+# ---- PDF upload (NEW) ----
+if thread_docs :                                                             
+    latest_doc = list(thread_docs.values())[-1]                               
+    st.sidebar.success(                                                    
+        f"Using `{latest_doc.get('filename')}` "                              
+        f"({latest_doc.get('chunks')} chunks from {latest_doc.get('documents')} pages)" 
+    )                                                                         
+else :                                                                        
+    st.sidebar.info('No PDF indexed yet.')                                    
+
+uploaded_pdf = st.sidebar.file_uploader(                                      
+    'Upload a PDF for this chat', type=['pdf'], key=f'pdf-{thread_key}'       
+)                                                                             
+if uploaded_pdf :                                                          
+    if uploaded_pdf.name in thread_docs :                                     
+        st.sidebar.info(f'`{uploaded_pdf.name}` already processed for this chat.')  
+    else :                                                                    
+        with st.sidebar.status('Indexing PDF…', expanded=True) as status_box :  
+            summary = ingest_pdf(                                            
+                uploaded_pdf.getvalue(),                                     
+                thread_id=thread_key,                                        
+                filename=uploaded_pdf.name,                                   
+            )                                                                 
+            thread_docs[uploaded_pdf.name] = summary                         
+            status_box.update(label='✅ PDF indexed', state='complete', expanded=False) 
+# ---- end PDF upload ----
 
 st.sidebar.divider()
 st.sidebar.caption('RECENT CHATS')
@@ -146,3 +179,10 @@ if user_input :
         ai_message = st.write_stream(ai_only_stream())
 
     st.session_state['message_history'].append({'role':'assistant','content':ai_message})
+
+    doc_meta = thread_document_metadata(thread_key)                           
+    if doc_meta :                                                           
+        st.caption(                                                         
+            f"Document indexed: {doc_meta.get('filename')} "                  
+            f"(chunks: {doc_meta.get('chunks')}, pages: {doc_meta.get('documents')})"  
+        )                                                                   
